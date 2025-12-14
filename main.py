@@ -1,6 +1,6 @@
 import argparse
 import sys
-from youtube_client import get_youtube_client, add_video_to_playlist
+from src.youtube_client import get_youtube_client, add_video_to_playlist
 
 def main():
     parser = argparse.ArgumentParser(description='Add videos to a YouTube playlist.')

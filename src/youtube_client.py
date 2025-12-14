@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from auth import get_authenticated_service
+from .auth import get_authenticated_service
 
 def get_youtube_client():
     """Builds and returns the YouTube service."""
