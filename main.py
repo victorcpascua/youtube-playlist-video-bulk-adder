@@ -1,31 +1,52 @@
 import argparse
 import sys
+import os
+import csv
 from src.youtube_client import get_youtube_client, add_video_to_playlist
+
+def read_videos_from_csv(file_path):
+    video_ids = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                for item in row:
+                    if item.strip():
+                        video_ids.append(item.strip())
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        sys.exit(1)
+    return video_ids
 
 def main():
     parser = argparse.ArgumentParser(description='Add videos to a YouTube playlist.')
     parser.add_argument('--playlist', help='The ID of the playlist to add videos to.')
     parser.add_argument('--videos', help='Comma-separated list of video IDs to add.')
+    parser.add_argument('--file', help='Path to a CSV file containing video IDs.')
     
     args = parser.parse_args()
     
     playlist_id = args.playlist
-    video_ids_str = args.videos
+    video_ids = []
+    
+    if args.videos:
+        video_ids = [vid.strip() for vid in args.videos.split(',') if vid.strip()]
+    elif args.file:
+        print(f"Reading videos from {args.file}...")
+        video_ids = read_videos_from_csv(args.file)
+    elif os.path.exists('videos.csv'):
+        print("Found videos.csv, reading videos from it...")
+        video_ids = read_videos_from_csv('videos.csv')
     
     if not playlist_id:
         playlist_id = input("Enter Playlist ID: ").strip()
         
-    if not video_ids_str:
-        video_ids_str = input("Enter Video IDs (comma-separated): ").strip()
-        
-    if not playlist_id or not video_ids_str:
-        print("Error: Playlist ID and Video IDs are required.")
-        sys.exit(1)
-        
-    video_ids = [vid.strip() for vid in video_ids_str.split(',') if vid.strip()]
-    
     if not video_ids:
-        print("Error: No valid video IDs provided.")
+        video_ids_str = input("Enter Video IDs (comma-separated): ").strip()
+        video_ids = [vid.strip() for vid in video_ids_str.split(',') if vid.strip()]
+        
+    if not playlist_id or not video_ids:
+        print("Error: Playlist ID and Video IDs are required.")
         sys.exit(1)
         
     print("Authenticating...")
