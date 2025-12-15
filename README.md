@@ -44,6 +44,7 @@ Before running the script, you need two things:
     *   A video ID is the part of the YouTube URL after `v=`.
     *   For example, in `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, the ID is `dQw4w9WgXcQ`.
     *   Prepare your list as comma-separated values (e.g., `dQw4w9WgXcQ,as2a4w9Wgd54,9WgXcQasd94a`).
+    *   You can also prepare your list as a CSV file. (Console input has a character limit. For large lists of videos, please use a CSV file)
 
 ## Extracting Videos from "Watch Later"
 
@@ -60,10 +61,40 @@ Check out [WATCH_LATER_EXTRACTION.md](WATCH_LATER_EXTRACTION.md) to learn how to
 python3 main.py --playlist <PLAYLIST_ID> --videos <VIDEO_ID_1>,<VIDEO_ID_2>,...
 ```
 
-Or run interactively:
+### Using a CSV File
+
+For large lists of videos, it is recommended to use a CSV file to avoid console input character limits.
+The CSV file can contain video IDs separated by commas or newlines.
+
+**Example `videos.csv` content:**
+```csv
+vid1,vid2,vid3
+```
+OR
+```csv
+vid1
+vid2
+vid3
+```
+
+To use a specific CSV file:
+```bash
+python3 main.py --playlist <PLAYLIST_ID> --file <PATH_TO_CSV>
+```
+
+If you have a file named `videos.csv` in the same directory, the script will automatically detect and use it if no other video source is provided:
+```bash
+python3 main.py --playlist <PLAYLIST_ID>
+```
+
+### Interactive Mode
+
+You can also run the script interactively:
 ```bash
 python3 main.py
 ```
+> [!NOTE]
+> When pasting a large number of video IDs into the console, you may hit the operating system's character limit for input. If this happens, please use the CSV method described above.
 
 ## Quota Warning
 
