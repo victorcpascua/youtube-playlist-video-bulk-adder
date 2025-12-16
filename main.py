@@ -2,7 +2,9 @@ import argparse
 import sys
 import os
 import csv
+
 from src.youtube_client import get_youtube_client, add_video_to_playlist
+from src.utils import extract_video_id
 
 def read_videos_from_csv(file_path):
     video_ids = []
@@ -12,7 +14,7 @@ def read_videos_from_csv(file_path):
             for row in reader:
                 for item in row:
                     if item.strip():
-                        video_ids.append(item.strip())
+                        video_ids.append(extract_video_id(item.strip()))
     except Exception as e:
         print(f"Error reading CSV file: {e}")
         sys.exit(1)
@@ -30,7 +32,7 @@ def main():
     video_ids = []
     
     if args.videos:
-        video_ids = [vid.strip() for vid in args.videos.split(',') if vid.strip()]
+        video_ids = [extract_video_id(vid.strip()) for vid in args.videos.split(',') if vid.strip()]
     elif args.file:
         print(f"Reading videos from {args.file}...")
         video_ids = read_videos_from_csv(args.file)
@@ -43,7 +45,7 @@ def main():
         
     if not video_ids:
         video_ids_str = input("Enter Video IDs (comma-separated): ").strip()
-        video_ids = [vid.strip() for vid in video_ids_str.split(',') if vid.strip()]
+        video_ids = [extract_video_id(vid.strip()) for vid in video_ids_str.split(',') if vid.strip()]
         
     if not playlist_id or not video_ids:
         print("Error: Playlist ID and Video IDs are required.")

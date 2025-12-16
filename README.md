@@ -40,11 +40,11 @@ Before running the script, you need two things:
     *   The **Playlist ID** is the part after `list=`. For example, if the URL is `https://www.youtube.com/playlist?list=PL12345ABCDE_ASF5614SDF`, the ID is `PL12345ABCDE_ASF5614SDF`.
 
 2.  **Video IDs**:
-    *   You need a list of video IDs you want to add.
-    *   A video ID is the part of the YouTube URL after `v=`.
-    *   For example, in `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, the ID is `dQw4w9WgXcQ`.
-    *   Prepare your list as comma-separated values (e.g., `dQw4w9WgXcQ,as2a4w9Wgd54,9WgXcQasd94a`).
-    *   You can also prepare your list as a CSV file. (Console input has a character limit. For large lists of videos, please use a CSV file)
+    *   You can provide the **Video ID** directly OR the full **YouTube URL**.
+    *   Example ID: `dQw4w9WgXcQ`
+    *   Example URL: `https://www.youtube.com/watch?v=dQw4w9WgXcQ` or `https://youtu.be/dQw4w9WgXcQ`
+    *   Prepare your list as comma-separated values.
+    *   You can also prepare your list as a CSV file.
 
 ## Extracting Videos from "Watch Later"
 
@@ -58,7 +58,7 @@ Check out [WATCH_LATER_EXTRACTION.md](WATCH_LATER_EXTRACTION.md) to learn how to
 ## Usage
 
 ```bash
-python3 main.py --playlist <PLAYLIST_ID> --videos <VIDEO_ID_1>,<VIDEO_ID_2>,...
+python3 main.py --playlist <PLAYLIST_ID> --videos <VIDEO_ID_1>,<URL_2>,...
 ```
 
 ### Using a CSV File
@@ -72,9 +72,9 @@ vid1,vid2,vid3
 ```
 OR
 ```csv
-vid1
+https://www.youtube.com/watch?v=vid1
 vid2
-vid3
+https://youtu.be/vid3
 ```
 
 To use a specific CSV file:
