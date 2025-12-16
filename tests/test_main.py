@@ -26,20 +26,22 @@ class TestMain(unittest.TestCase):
     @patch('main.add_video_to_playlist')
     @patch('main.get_youtube_client')
     @patch('builtins.print')
-    def test_main_success_file_arg(self, mock_print, mock_get_client, mock_add_video):
+    @patch('main.read_videos_from_csv')
+    def test_main_success_file_arg(self, mock_read_csv, mock_print, mock_get_client, mock_add_video):
         # Setup
         test_args = ['main.py', '--playlist', 'PL123', '--file', 'my_videos.csv']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
         
-        csv_content = "vid1,vid2"
+        mock_read_csv.return_value = ['vid1', 'vid2']
+        
         with patch.object(sys, 'argv', test_args):
-            with patch('builtins.open', mock_open(read_data=csv_content)):
-                # Execute
-                main()
+            # Execute
+            main()
 
         # Verify
         mock_get_client.assert_called_once()
+        mock_read_csv.assert_called_with('my_videos.csv')
         self.assertEqual(mock_add_video.call_count, 2)
         mock_add_video.assert_any_call(mock_service, 'PL123', 'vid1')
         mock_add_video.assert_any_call(mock_service, 'PL123', 'vid2')
@@ -48,21 +50,23 @@ class TestMain(unittest.TestCase):
     @patch('main.get_youtube_client')
     @patch('builtins.print')
     @patch('os.path.exists')
-    def test_main_success_default_csv(self, mock_exists, mock_print, mock_get_client, mock_add_video):
+    @patch('main.read_videos_from_csv')
+    def test_main_success_default_csv(self, mock_read_csv, mock_exists, mock_print, mock_get_client, mock_add_video):
         # Setup
         test_args = ['main.py', '--playlist', 'PL123']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
         mock_exists.side_effect = lambda p: p == 'videos.csv'
         
-        csv_content = "vid1\nvid2"
+        mock_read_csv.return_value = ['vid1', 'vid2']
+        
         with patch.object(sys, 'argv', test_args):
-            with patch('builtins.open', mock_open(read_data=csv_content)):
-                # Execute
-                main()
+            # Execute
+            main()
 
         # Verify
         mock_get_client.assert_called_once()
+        mock_read_csv.assert_called_with('videos.csv')
         self.assertEqual(mock_add_video.call_count, 2)
         mock_add_video.assert_any_call(mock_service, 'PL123', 'vid1')
         mock_add_video.assert_any_call(mock_service, 'PL123', 'vid2')

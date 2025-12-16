@@ -28,3 +28,46 @@ class TestExtractVideoId(unittest.TestCase):
         # Current implementation: "Assume it's a raw video ID if no URL pattern matches"
         url = "https://example.com/foo"
         self.assertEqual(extract_video_id(url), "https://example.com/foo")
+
+from unittest.mock import patch, mock_open
+from src.utils import read_videos_from_csv
+import sys
+
+class TestReadVideosFromCsv(unittest.TestCase):
+    @patch('builtins.print')
+    @patch('sys.exit')
+    def test_read_csv_success(self, mock_exit, mock_print):
+        # Setup
+        csv_content = "vid1,https://youtu.be/vid2\nvid3"
+        with patch('builtins.open', mock_open(read_data=csv_content)):
+            # Execute
+            ids = read_videos_from_csv('dummy.csv')
+            
+        # Verify
+        self.assertEqual(ids, ['vid1', 'vid2', 'vid3'])
+        mock_exit.assert_not_called()
+
+    @patch('builtins.print')
+    @patch('sys.exit')
+    def test_read_csv_empty(self, mock_exit, mock_print):
+        # Setup
+        with patch('builtins.open', mock_open(read_data="")):
+            # Execute
+            ids = read_videos_from_csv('dummy.csv')
+            
+        # Verify
+        self.assertEqual(ids, [])
+        mock_exit.assert_not_called()
+
+    @patch('builtins.print')
+    @patch('sys.exit')
+    def test_read_csv_error(self, mock_exit, mock_print):
+        # Setup
+        mock_exit.side_effect = SystemExit
+        with patch('builtins.open', side_effect=Exception("Read error")):
+            # Execute
+            with self.assertRaises(SystemExit):
+                read_videos_from_csv('dummy.csv')
+                
+        # Verify
+        mock_exit.assert_called_with(1)

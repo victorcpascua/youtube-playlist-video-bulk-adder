@@ -1,5 +1,8 @@
 from urllib.parse import urlparse, parse_qs
 
+import csv
+import sys
+
 def extract_video_id(input_str: str) -> str:
     """
     Extracts the video ID from a YouTube URL or returns the input if it's already an ID.
@@ -27,3 +30,26 @@ def extract_video_id(input_str: str) -> str:
         
     # Assume it's a raw video ID if no URL pattern matches
     return input_str
+
+def read_videos_from_csv(file_path: str) -> list[str]:
+    """
+    Reads video IDs/URLs from a CSV file.
+    
+    Args:
+        file_path (str): Path to the CSV file.
+        
+    Returns:
+        list[str]: List of extracted video IDs.
+    """
+    video_ids = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                for item in row:
+                    if item.strip():
+                        video_ids.append(extract_video_id(item.strip()))
+    except Exception as e:
+        print(f"Error reading CSV file: {e}")
+        sys.exit(1)
+    return video_ids

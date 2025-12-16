@@ -4,21 +4,9 @@ import os
 import csv
 
 from src.youtube_client import get_youtube_client, add_video_to_playlist
-from src.utils import extract_video_id
+from src.utils import extract_video_id, read_videos_from_csv
 
-def read_videos_from_csv(file_path):
-    video_ids = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                for item in row:
-                    if item.strip():
-                        video_ids.append(extract_video_id(item.strip()))
-    except Exception as e:
-        print(f"Error reading CSV file: {e}")
-        sys.exit(1)
-    return video_ids
+
 
 def main():
     parser = argparse.ArgumentParser(description='Add videos to a YouTube playlist.')
