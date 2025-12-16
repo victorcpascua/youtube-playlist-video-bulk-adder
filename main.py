@@ -1,7 +1,7 @@
 import argparse
 import sys
 import os
-import csv
+import re
 
 from src.youtube_client import get_youtube_client, add_video_to_playlist
 from src.utils import extract_video_id, read_videos_from_csv
@@ -37,6 +37,17 @@ def main():
         
     if not playlist_id or not video_ids:
         print("Error: Playlist ID and Video IDs are required.")
+        sys.exit(1)
+
+    # Filter out None or empty strings from video_ids
+    video_ids = [vid for vid in video_ids if vid]
+
+    # YouTube video IDs are typically 11 characters long, alphanumeric, with - and _
+    video_id_pattern = re.compile(r'^[a-zA-Z0-9_-]{11}$')
+    video_ids = [vid for vid in video_ids if video_id_pattern.match(vid)]
+    
+    if not video_ids:
+        print("Error: No valid video IDs provided.")
         sys.exit(1)
         
     print("Authenticating...")
