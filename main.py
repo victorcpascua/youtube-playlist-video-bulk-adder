@@ -41,10 +41,17 @@ def main():
 
     # Filter out None or empty strings from video_ids
     video_ids = [vid for vid in video_ids if vid]
-
+    
     # YouTube video IDs are typically 11 characters long, alphanumeric, with - and _
     video_id_pattern = re.compile(r'^[a-zA-Z0-9_-]{11}$')
-    video_ids = [vid for vid in video_ids if video_id_pattern.match(vid)]
+    valid_video_ids = []
+    for vid in video_ids:
+        if video_id_pattern.match(vid):
+            valid_video_ids.append(vid)
+        else:
+            print(f"Warning: '{vid}' is not a valid video ID and will be skipped.")
+            
+    video_ids = valid_video_ids
     
     if not video_ids:
         print("Error: No valid video IDs provided.")

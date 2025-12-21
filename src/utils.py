@@ -16,10 +16,18 @@ def extract_video_id(input_str: str) -> str:
     if not input_str:
         return ""
         
+    # Handle protocol-less URLs by forcing https:// if missing
+    if not input_str.startswith(('http://', 'https://')):
+        # Only prepend if it looks like a URL (contains dot and slash or youtube/youtu.be)
+        if '.' in input_str and ('/' in input_str or 'youtu' in input_str):
+             input_str = 'https://' + input_str
+        
     parsed_url = urlparse(input_str)
     
     # Handle standard URLs: https://www.youtube.com/watch?v=VIDEO_ID
     if "youtube.com" in parsed_url.netloc:
+        if parsed_url.path.startswith(("/shorts/", "/embed/", "/live/")):
+            return parsed_url.path.split("/")[-1]
         query_params = parse_qs(parsed_url.query)
         if "v" in query_params:
             return query_params["v"][0]
