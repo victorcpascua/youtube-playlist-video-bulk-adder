@@ -1,22 +1,12 @@
 import argparse
 import sys
 import os
-import csv
-from src.youtube_client import get_youtube_client, add_video_to_playlist
+import re
 
-def read_videos_from_csv(file_path):
-    video_ids = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                for item in row:
-                    if item.strip():
-                        video_ids.append(item.strip())
-    except Exception as e:
-        print(f"Error reading CSV file: {e}")
-        sys.exit(1)
-    return video_ids
+from src.youtube_client import get_youtube_client, add_video_to_playlist
+from src.utils import extract_video_id, read_videos_from_csv
+
+
 
 def main():
     parser = argparse.ArgumentParser(description='Add videos to a YouTube playlist.')
@@ -30,7 +20,7 @@ def main():
     video_ids = []
     
     if args.videos:
-        video_ids = [vid.strip() for vid in args.videos.split(',') if vid.strip()]
+        video_ids = [extract_video_id(vid.strip()) for vid in args.videos.split(',') if vid.strip()]
     elif args.file:
         print(f"Reading videos from {args.file}...")
         video_ids = read_videos_from_csv(args.file)
@@ -43,10 +33,28 @@ def main():
         
     if not video_ids:
         video_ids_str = input("Enter Video IDs (comma-separated): ").strip()
-        video_ids = [vid.strip() for vid in video_ids_str.split(',') if vid.strip()]
+        video_ids = [extract_video_id(vid.strip()) for vid in video_ids_str.split(',') if vid.strip()]
         
     if not playlist_id or not video_ids:
         print("Error: Playlist ID and Video IDs are required.")
+        sys.exit(1)
+
+    # Filter out None or empty strings from video_ids
+    video_ids = [vid for vid in video_ids if vid]
+    
+    # YouTube video IDs are typically 11 characters long, alphanumeric, with - and _
+    video_id_pattern = re.compile(r'^[a-zA-Z0-9_-]{11}$')
+    valid_video_ids = []
+    for vid in video_ids:
+        if video_id_pattern.match(vid):
+            valid_video_ids.append(vid)
+        else:
+            print(f"Warning: '{vid}' is not a valid video ID and will be skipped.")
+            
+    video_ids = valid_video_ids
+    
+    if not video_ids:
+        print("Error: No valid video IDs provided.")
         sys.exit(1)
         
     print("Authenticating...")

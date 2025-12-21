@@ -9,7 +9,7 @@ class TestMain(unittest.TestCase):
     @patch('builtins.print')
     def test_main_success_args(self, mock_print, mock_get_client, mock_add_video):
         # Setup
-        test_args = ['main.py', '--playlist', 'PL123', '--videos', 'vid1,vid2']
+        test_args = ['main.py', '--playlist', 'dQw4w9WgXcQ', '--videos', '97w4w9WgXcQ,dQw4w9WgXcQ']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
 
@@ -20,52 +20,56 @@ class TestMain(unittest.TestCase):
         # Verify
         mock_get_client.assert_called_once()
         self.assertEqual(mock_add_video.call_count, 2)
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid1')
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid2')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', '97w4w9WgXcQ')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', 'dQw4w9WgXcQ')
 
     @patch('main.add_video_to_playlist')
     @patch('main.get_youtube_client')
     @patch('builtins.print')
-    def test_main_success_file_arg(self, mock_print, mock_get_client, mock_add_video):
+    @patch('main.read_videos_from_csv')
+    def test_main_success_file_arg(self, mock_read_csv, mock_print, mock_get_client, mock_add_video):
         # Setup
-        test_args = ['main.py', '--playlist', 'PL123', '--file', 'my_videos.csv']
+        test_args = ['main.py', '--playlist', 'dQw4w9WgXcQ', '--file', 'my_videos.csv']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
         
-        csv_content = "vid1,vid2"
+        mock_read_csv.return_value = ['97w4w9WgXcQ', 'dQw4w9WgXcQ']
+        
         with patch.object(sys, 'argv', test_args):
-            with patch('builtins.open', mock_open(read_data=csv_content)):
-                # Execute
-                main()
+            # Execute
+            main()
 
         # Verify
         mock_get_client.assert_called_once()
+        mock_read_csv.assert_called_with('my_videos.csv')
         self.assertEqual(mock_add_video.call_count, 2)
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid1')
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid2')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', '97w4w9WgXcQ')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', 'dQw4w9WgXcQ')
 
     @patch('main.add_video_to_playlist')
     @patch('main.get_youtube_client')
     @patch('builtins.print')
     @patch('os.path.exists')
-    def test_main_success_default_csv(self, mock_exists, mock_print, mock_get_client, mock_add_video):
+    @patch('main.read_videos_from_csv')
+    def test_main_success_default_csv(self, mock_read_csv, mock_exists, mock_print, mock_get_client, mock_add_video):
         # Setup
-        test_args = ['main.py', '--playlist', 'PL123']
+        test_args = ['main.py', '--playlist', 'dQw4w9WgXcQ']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
         mock_exists.side_effect = lambda p: p == 'videos.csv'
         
-        csv_content = "vid1\nvid2"
+        mock_read_csv.return_value = ['97w4w9WgXcQ', 'dQw4w9WgXcQ']
+        
         with patch.object(sys, 'argv', test_args):
-            with patch('builtins.open', mock_open(read_data=csv_content)):
-                # Execute
-                main()
+            # Execute
+            main()
 
         # Verify
         mock_get_client.assert_called_once()
+        mock_read_csv.assert_called_with('videos.csv')
         self.assertEqual(mock_add_video.call_count, 2)
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid1')
-        mock_add_video.assert_any_call(mock_service, 'PL123', 'vid2')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', '97w4w9WgXcQ')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', 'dQw4w9WgXcQ')
 
     @patch('main.add_video_to_playlist')
     @patch('main.get_youtube_client')
@@ -75,7 +79,7 @@ class TestMain(unittest.TestCase):
     def test_main_success_interactive(self, mock_exists, mock_print, mock_input, mock_get_client, mock_add_video):
         # Setup
         test_args = ['main.py']
-        mock_input.side_effect = ['PL123', 'vid1, vid2']
+        mock_input.side_effect = ['dQw4w9WgXcQ', '97w4w9WgXcQ, dQw4w9WgXcQ']
         mock_service = MagicMock()
         mock_get_client.return_value = mock_service
         mock_exists.return_value = False
@@ -109,7 +113,7 @@ class TestMain(unittest.TestCase):
     @patch('sys.exit')
     def test_main_auth_failure(self, mock_exit, mock_print, mock_get_client):
         # Setup
-        test_args = ['main.py', '--playlist', 'PL123', '--videos', 'vid1']
+        test_args = ['main.py', '--playlist', 'dQw4w9WgXcQ', '--videos', '97w4w9WgXcQ']
         mock_get_client.side_effect = Exception("Auth failed")
         mock_exit.side_effect = SystemExit
 
@@ -120,3 +124,24 @@ class TestMain(unittest.TestCase):
 
         # Verify
         mock_exit.assert_called_with(1)
+
+    @patch('main.add_video_to_playlist')
+    @patch('main.get_youtube_client')
+    @patch('builtins.print')
+    def test_main_success_url_args(self, mock_print, mock_get_client, mock_add_video):
+        # Setup
+        # Use full URL and a short URL
+        test_args = ['main.py', '--playlist', 'dQw4w9WgXcQ', '--videos', 'https://www.youtube.com/watch?v=97w4w9WgXcQ, https://youtu.be/dQw4w9WgXcQ']
+        mock_service = MagicMock()
+        mock_get_client.return_value = mock_service
+
+        with patch.object(sys, 'argv', test_args):
+            # Execute
+            main()
+
+        # Verify
+        mock_get_client.assert_called_once()
+        self.assertEqual(mock_add_video.call_count, 2)
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', '97w4w9WgXcQ')
+        mock_add_video.assert_any_call(mock_service, 'dQw4w9WgXcQ', 'dQw4w9WgXcQ')
+
